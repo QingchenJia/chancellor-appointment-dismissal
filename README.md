@@ -5,9 +5,8 @@
 ## 功能
 
 - 从 Excel 一键重建 SQLite 数据库。
-- 按公元年、月份、人名、官职、皇帝、年号、事件类型和原文关键词查询。
-- 查看单条记录的完整原文、官职解析、批注和 Excel 源单元格。
-- 人名和官职自动补全。
+- 按公元年、月份、人名、皇帝、年号、事件类型和原文关键词查询。
+- 查看单条记录的完整原文、批注和 Excel 源单元格。
 - 结果分页和 CSV 导出。
 
 ## 环境
@@ -62,8 +61,6 @@ conda run -n document python -m pytest -q
 - `persons`：人物及别名。
 - `time_points`：公元年、月份、皇帝、年号和原始行号。
 - `appointment_events`：任免、调整、死亡等职务变动事件，保留原文和源单元格；仅表示延续在任的任期状态记录不入库。
-- `offices`：官职候选词。
-- `event_offices`：事件与官职关系。
 - `annotations`：Excel 批注。
 - `import_audit`：导入审计统计。
 

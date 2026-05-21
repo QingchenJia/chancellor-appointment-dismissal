@@ -23,7 +23,6 @@ def create_app(db_path: str | Path = "data/song_chancellors.db") -> FastAPI:
         year_to: int | None = None,
         month: int | str | None = None,
         person: str | None = None,
-        office: str | None = None,
         event_type: str | None = None,
         emperor: str | None = None,
         era: str | None = None,
@@ -38,7 +37,6 @@ def create_app(db_path: str | Path = "data/song_chancellors.db") -> FastAPI:
             year_to=year_to,
             month=month,
             person=person,
-            office=office,
             event_type=event_type,
             emperor=emperor,
             era=era,
@@ -67,11 +65,6 @@ def create_app(db_path: str | Path = "data/song_chancellors.db") -> FastAPI:
         if detail is None:
             raise HTTPException(status_code=404, detail="Person not found")
         return detail
-
-    @app.get("/api/offices")
-    def offices(q: str = ""):
-        _require_database(database)
-        return repository.search_offices(database, q=q)
 
     @app.get("/api/facets")
     def facets():

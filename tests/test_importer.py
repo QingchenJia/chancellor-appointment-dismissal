@@ -25,6 +25,13 @@ def test_import_workbook_normalizes_people_time_events_and_comments(sample_workb
         """
     ).fetchall()
     comment = conn.execute("select source_cell, comment_text from annotations").fetchone()
+    office_tables = conn.execute(
+        """
+        select name
+        from sqlite_master
+        where type = 'table' and name in ('offices', 'event_offices')
+        """
+    ).fetchall()
     conn.close()
 
     assert [dict(row) for row in people] == [
@@ -38,6 +45,7 @@ def test_import_workbook_normalizes_people_time_events_and_comments(sample_workb
     assert {event["event_type"] for event in events} == {"appointment"}
     assert events[1]["source_cell"] == "F5"
     assert comment["source_cell"] == "F5"
+    assert office_tables == []
 
 
 def test_import_excel_script_runs_from_project_root(sample_workbook_path, temp_db_path):

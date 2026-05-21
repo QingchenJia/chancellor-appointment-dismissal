@@ -33,3 +33,12 @@ def test_facets_route_returns_filter_options(sample_workbook_path, temp_db_path)
 
     assert response.status_code == 200
     assert "太祖赵匡胤" in response.json()["emperors"]
+
+
+def test_offices_route_is_removed(sample_workbook_path, temp_db_path):
+    import_workbook(sample_workbook_path, temp_db_path, rebuild=True)
+    client = TestClient(create_app(temp_db_path))
+
+    response = client.get("/api/offices")
+
+    assert response.status_code == 404

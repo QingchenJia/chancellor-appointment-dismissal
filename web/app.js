@@ -8,7 +8,6 @@ const state = {
 
 const fields = {
   person: document.querySelector("#person"),
-  office: document.querySelector("#office"),
   yearFrom: document.querySelector("#yearFrom"),
   yearTo: document.querySelector("#yearTo"),
   month: document.querySelector("#month"),
@@ -91,7 +90,6 @@ async function loadTimeline() {
 async function searchEvents() {
   const params = new URLSearchParams();
   appendParam(params, "person", fields.person.value);
-  appendParam(params, "office", fields.office.value);
   appendParam(params, "year_from", fields.yearFrom.value);
   appendParam(params, "year_to", fields.yearTo.value);
   appendParam(params, "month", fields.month.value);
@@ -148,9 +146,6 @@ function renderResults(data) {
 
 function renderDetail(detail) {
   document.querySelector("#sourceCell").textContent = detail.source_cell;
-  const offices = detail.offices.length
-    ? detail.offices.map((office) => `<span class="type-pill">${escapeHtml(office.relation_type)} · ${escapeHtml(office.name)}</span>`).join(" ")
-    : `<span class="muted">未解析出官职</span>`;
   const annotations = detail.annotations.length
     ? detail.annotations.map((annotation) => `<p>${escapeHtml(annotation.comment_text)}</p>`).join("")
     : `<p class="muted">无批注</p>`;
@@ -162,10 +157,6 @@ function renderDetail(detail) {
     <div class="detail-section">
       <div class="detail-label">原文</div>
       <div class="source-text">${escapeHtml(detail.raw_text)}</div>
-    </div>
-    <div class="detail-section">
-      <div class="detail-label">官职解析</div>
-      <div class="office-tags">${offices}</div>
     </div>
     <div class="detail-section">
       <div class="detail-label">批注</div>

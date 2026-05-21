@@ -7,7 +7,7 @@ import openpyxl
 from openpyxl.utils import get_column_letter
 
 from .db import connect, create_schema, rebuild_database
-from .parsing import classify_event_type, extract_office_fragments, normalize_month, split_person_name
+from .parsing import classify_event_type, normalize_month, split_person_name
 
 
 def import_workbook(workbook_path: str | Path, db_path: str | Path, rebuild: bool = False) -> dict[str, Any]:
@@ -102,16 +102,6 @@ def import_workbook(workbook_path: str | Path, db_path: str | Path, rebuild: boo
             event_id = int(cur.fetchone()["id"])
             record_count += 1
 
-            for fragment in extract_office_fragments(raw_text):
-                office_id = _upsert_office(conn, fragment.name)
-                conn.execute(
-                    """
-                    insert into event_offices (event_id, office_id, relation_type, raw_fragment)
-                    values (?, ?, ?, ?)
-                    """,
-                    (event_id, office_id, fragment.relation_type, fragment.raw_fragment),
-                )
-
             if cell.comment:
                 conn.execute(
                     """
@@ -152,17 +142,3 @@ def import_workbook(workbook_path: str | Path, db_path: str | Path, rebuild: boo
     conn.commit()
     conn.close()
     return summary
-
-
-def _upsert_office(conn, name: str) -> int:
-    normalized = name.strip()
-    cur = conn.execute(
-        """
-        insert into offices (name, normalized_name)
-        values (?, ?)
-        on conflict(name) do update set normalized_name = excluded.normalized_name
-        returning id
-        """,
-        (normalized, normalized),
-    )
-    return int(cur.fetchone()["id"])

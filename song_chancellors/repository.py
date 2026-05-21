@@ -12,7 +12,6 @@ def search_events(
     year_to: int | None = None,
     month: int | str | None = None,
     person: str | None = None,
-    office: str | None = None,
     event_type: str | None = None,
     emperor: str | None = None,
     era: str | None = None,
@@ -20,8 +19,7 @@ def search_events(
     limit: int = 50,
     offset: int = 0,
 ) -> dict[str, Any]:
-    where, params = _event_filters(year_from, year_to, month, person, office, event_type, emperor, era, keyword)
-    joins = _event_joins(office)
+    where, params = _event_filters(year_from, year_to, month, person, event_type, emperor, era, keyword)
     where_sql = f"where {' and '.join(where)}" if where else ""
 
     conn = connect(db_path)
@@ -31,7 +29,6 @@ def search_events(
         from appointment_events e
         join persons p on p.id = e.person_id
         join time_points t on t.id = e.time_point_id
-        {joins}
         {where_sql}
         """,
         params,
@@ -49,16 +46,11 @@ def search_events(
             t.era_name,
             e.event_type,
             e.raw_text,
-            e.source_cell,
-            coalesce(group_concat(distinct o.name), '') as office_summary
+            e.source_cell
         from appointment_events e
         join persons p on p.id = e.person_id
         join time_points t on t.id = e.time_point_id
-        left join event_offices eo_all on eo_all.event_id = e.id
-        left join offices o on o.id = eo_all.office_id
-        {joins}
         {where_sql}
-        group by e.id
         order by t.gregorian_year, t.source_row, e.id
         limit ? offset ?
         """,
@@ -99,16 +91,6 @@ def get_event_detail(db_path: str | Path, event_id: int) -> dict[str, Any] | Non
     if not event:
         conn.close()
         return None
-    offices = conn.execute(
-        """
-        select o.id, o.name, eo.relation_type, eo.raw_fragment
-        from event_offices eo
-        join offices o on o.id = eo.office_id
-        where eo.event_id = ?
-        order by eo.id
-        """,
-        (event_id,),
-    ).fetchall()
     annotations = conn.execute(
         """
         select id, source_cell, comment_text
@@ -120,7 +102,6 @@ def get_event_detail(db_path: str | Path, event_id: int) -> dict[str, Any] | Non
     ).fetchall()
     conn.close()
     detail = _row_dict(event)
-    detail["offices"] = [_row_dict(row) for row in offices]
     detail["annotations"] = [_row_dict(row) for row in annotations]
     return detail
 
@@ -177,41 +158,10 @@ def get_person_detail(db_path: str | Path, person_id: int) -> dict[str, Any] | N
         """,
         (person_id,),
     ).fetchall()
-    offices = conn.execute(
-        """
-        select distinct o.id, o.name
-        from event_offices eo
-        join offices o on o.id = eo.office_id
-        join appointment_events e on e.id = eo.event_id
-        where e.person_id = ?
-        order by o.name
-        """,
-        (person_id,),
-    ).fetchall()
     conn.close()
     result = _row_dict(person)
     result["events"] = [_row_dict(row) for row in events]
-    result["offices"] = [_row_dict(row) for row in offices]
     return result
-
-
-def search_offices(db_path: str | Path, q: str = "") -> list[dict[str, Any]]:
-    conn = connect(db_path)
-    pattern = f"%{q}%"
-    rows = conn.execute(
-        """
-        select o.id, o.name, count(eo.event_id) as event_count
-        from offices o
-        left join event_offices eo on eo.office_id = o.id
-        where ? = '' or o.name like ?
-        group by o.id
-        order by event_count desc, o.name
-        limit 30
-        """,
-        (q, pattern),
-    ).fetchall()
-    conn.close()
-    return [_row_dict(row) for row in rows]
 
 
 def list_facets(db_path: str | Path) -> dict[str, Any]:
@@ -223,7 +173,7 @@ def list_facets(db_path: str | Path) -> dict[str, Any]:
     return {
         "emperors": emperors,
         "eras": eras,
-        "event_types": ["appointment", "dismissal", "death", "tenure"],
+        "event_types": ["appointment", "dismissal", "death"],
         "year_min": years[0],
         "year_max": years[1],
         "months": [
@@ -258,21 +208,11 @@ def timeline(db_path: str | Path) -> list[dict[str, Any]]:
     return [_row_dict(row) for row in rows]
 
 
-def _event_joins(office: str | None) -> str:
-    if not office:
-        return ""
-    return """
-        join event_offices eo_filter on eo_filter.event_id = e.id
-        join offices o_filter on o_filter.id = eo_filter.office_id
-    """
-
-
 def _event_filters(
     year_from: int | None,
     year_to: int | None,
     month: int | str | None,
     person: str | None,
-    office: str | None,
     event_type: str | None,
     emperor: str | None,
     era: str | None,
@@ -293,9 +233,6 @@ def _event_filters(
         where.append("(p.canonical_name like ? or p.raw_name like ? or p.aliases like ?)")
         pattern = f"%{person}%"
         params.extend([pattern, pattern, pattern])
-    if office:
-        where.append("o_filter.name like ?")
-        params.append(f"%{office}%")
     if event_type:
         where.append("e.event_type = ?")
         params.append(event_type)

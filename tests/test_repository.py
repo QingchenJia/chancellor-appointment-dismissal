@@ -29,14 +29,14 @@ def test_search_events_excludes_tenure_records_by_default(sample_workbook_path, 
     assert tenure_result["items"] == []
 
 
-def test_event_detail_includes_annotations_and_offices(sample_workbook_path, temp_db_path):
+def test_event_detail_includes_annotations_without_office_parsing(sample_workbook_path, temp_db_path):
     import_workbook(sample_workbook_path, temp_db_path, rebuild=True)
     event = search_events(temp_db_path, person="赵普")["items"][0]
 
     detail = get_event_detail(temp_db_path, event["id"])
 
     assert detail["annotations"][0]["comment_text"] == "《长编》日期有异文。"
-    assert any(office["name"] == "枢密副使" for office in detail["offices"])
+    assert "offices" not in detail
 
 
 def test_people_and_facets_support_filter_ui(sample_workbook_path, temp_db_path):

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import re
 
-from .models import OfficeFragment, ParsedPerson
+from .models import ParsedPerson
 
 MONTHS = {
     "正月": 1,
@@ -55,30 +55,3 @@ def classify_event_type(text: str) -> str:
     if any(word in value for word in APPOINTMENT_WORDS) or "本月" in value:
         return "appointment"
     return "tenure"
-
-
-def extract_office_fragments(text: str) -> list[OfficeFragment]:
-    value = str(text).strip("。；; ")
-    relation = "current"
-    if "自" in value:
-        relation = "from"
-        value = value.split("自", 1)[1]
-    if "除" in value:
-        before, after = value.rsplit("除", 1)
-        value = after or before
-        relation = "to"
-    elif "罢" in value:
-        before, after = value.rsplit("罢", 1)
-        value = before or after
-        relation = "removed"
-    elif any(word in value for word in ("加", "兼", "充", "为")):
-        relation = "to"
-
-    value = re.sub(r"^本月[，,]?[甲乙丙丁戊己庚辛壬癸子丑寅卯辰巳午未申酉戌亥]*日?[，,]?", "", value)
-    pieces = [piece.strip(" ，,。；;") for piece in re.split(r"[、，,。；;]", value)]
-    ignored = {"本月", "依前", "寻召还", "不知何时罢", ""}
-    return [
-        OfficeFragment(name=piece, relation_type=relation, raw_fragment=piece)
-        for piece in pieces
-        if piece and piece not in ignored and len(piece) <= 30
-    ]

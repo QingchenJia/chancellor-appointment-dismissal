@@ -55,20 +55,6 @@ def create_schema(conn: sqlite3.Connection) -> None:
             parse_confidence real not null default 0.5
         );
 
-        create table if not exists offices (
-            id integer primary key,
-            name text not null unique,
-            normalized_name text not null
-        );
-
-        create table if not exists event_offices (
-            id integer primary key,
-            event_id integer not null references appointment_events(id),
-            office_id integer not null references offices(id),
-            relation_type text not null,
-            raw_fragment text not null
-        );
-
         create table if not exists annotations (
             id integer primary key,
             event_id integer references appointment_events(id),
@@ -92,7 +78,6 @@ def create_schema(conn: sqlite3.Connection) -> None:
         create index if not exists idx_events_time on appointment_events(time_point_id);
         create index if not exists idx_events_type on appointment_events(event_type);
         create index if not exists idx_time_year_month on time_points(gregorian_year, month_index);
-        create index if not exists idx_offices_name on offices(name);
         """
     )
     conn.commit()

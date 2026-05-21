@@ -13,7 +13,7 @@
 - 批注中保存日期校订、史源差异和说明。
 - 任职至罢职期间还通过边框样式辅助表达任期区间。
 
-目标是将宽表拆分为符合数据库范式的结构，并实现一个本地轻量 Web 查询系统。用户应能按年月、人名、官职、皇帝、年号、任免类型和原文关键词查询任命、罢免、调整等职务变动，并能追溯到 Excel 原始文本与源单元格。仅表示延续在任、没有职务变动的任期状态记录不进入数据库。
+目标是将宽表拆分为符合数据库范式的结构，并实现一个本地轻量 Web 查询系统。用户应能按年月、人名、皇帝、年号、任免类型和原文关键词查询任命、罢免、调整等职务变动，并能追溯到 Excel 原始文本与源单元格。仅表示延续在任、没有职务变动的任期状态记录不进入数据库。
 
 ## 交付形态
 
@@ -88,47 +88,6 @@
 - 仅包含官职名称、没有明显动作词的任期状态记录在导入阶段跳过。
 - 自动判断只作为检索辅助，原文始终保留。
 
-### `offices`
-
-官职表。
-
-字段：
-
-- `id`
-- `name`
-- `normalized_name`
-
-用途：
-
-- 保存从事件文本和任期状态中抽取出的官职候选词。
-- 支持按官职查询。
-
-### `event_offices`
-
-事件与官职关系表。
-
-字段：
-
-- `id`
-- `event_id`
-- `office_id`
-- `relation_type`
-- `raw_fragment`
-
-`relation_type` 取值：
-
-- `from`
-- `to`
-- `current`
-- `removed`
-- `unclear`
-
-规则：
-
-- 使用“自、除、为、罢、兼、加、依前、充”等词进行半结构化切分。
-- 无法可靠归类的官职关系标记为 `unclear`。
-- 不用自动解析结果覆盖或改写原文。
-
 ### `annotations`
 
 批注表。
@@ -187,8 +146,7 @@ conda run -n document python scripts/import_excel.py 宋代宰辅编年录.xlsx 
 3. 从第 3 行开始读取时间行，继承空白的公元、皇帝、年号字段。
 4. 对每个非空人物单元格分类，跳过任期状态文本，对职务变动文本生成 `appointment_events` 记录。
 5. 读取批注并写入 `annotations`。
-6. 使用半结构化规则抽取官职候选词，写入 `offices` 和 `event_offices`。
-7. 记录导入统计和解析 warning。
+6. 记录导入统计和解析 warning。
 
 导入不因单个单元格解析失败而中断。失败或低置信度解析应记录 warning，并保留原始文本。
 
@@ -204,7 +162,6 @@ conda run -n document python scripts/import_excel.py 宋代宰辅编年录.xlsx 
 - `year_to`
 - `month`
 - `person`
-- `office`
 - `event_type`
 - `emperor`
 - `era`
@@ -216,7 +173,6 @@ conda run -n document python scripts/import_excel.py 宋代宰辅编年录.xlsx 
 
 - 事件列表
 - 分页信息
-- 匹配官职摘要
 - 批注摘要
 
 ### `GET /api/events/{event_id}`
@@ -229,7 +185,6 @@ conda run -n document python scripts/import_excel.py 宋代宰辅编年录.xlsx 
 - 年号
 - 原文
 - 事件类型
-- 官职关系
 - 批注
 - Excel 源单元格
 
@@ -257,21 +212,7 @@ conda run -n document python scripts/import_excel.py 宋代宰辅编年录.xlsx 
 
 - 全部事件
 - 任期状态记录
-- 涉及官职
 - 时间范围
-
-### `GET /api/offices`
-
-官职检索与自动补全。
-
-参数：
-
-- `q`
-
-返回：
-
-- 官职名
-- 关联事件数
 
 ### `GET /api/facets`
 
@@ -302,7 +243,6 @@ conda run -n document python scripts/import_excel.py 宋代宰辅编年录.xlsx 
 包含：
 
 - 人名
-- 官职
 - 年份范围
 - 月份
 - 皇帝
@@ -330,7 +270,6 @@ conda run -n document python scripts/import_excel.py 宋代宰辅编年录.xlsx 
 - 年号
 - 人物
 - 事件类型
-- 官职摘要
 - 原文摘要
 
 ### 右侧详情面板
@@ -338,7 +277,6 @@ conda run -n document python scripts/import_excel.py 宋代宰辅编年录.xlsx 
 点击结果行后展示：
 
 - 完整原文
-- 自动解析的官职关系
 - 批注
 - 源单元格
 - 人物全记录入口
@@ -349,7 +287,6 @@ conda run -n document python scripts/import_excel.py 宋代宰辅编年录.xlsx 
 
 - 人物事件时间线
 - 任期状态记录
-- 涉及官职列表
 - 首次与末次出现时间
 
 ## 视觉风格
@@ -393,7 +330,7 @@ conda run -n document python scripts/import_excel.py 宋代宰辅编年录.xlsx 
 
 验证：
 
-- 按年份、月份、人名、官职、事件类型、皇帝、年号、关键词查询。
+- 按年份、月份、人名、事件类型、皇帝、年号、关键词查询。
 - 分页。
 - 空结果。
 - 非法参数。
@@ -406,8 +343,7 @@ conda run -n document python scripts/import_excel.py 宋代宰辅编年录.xlsx 
 验证：
 
 - 筛选区、结果表格、详情面板联动。
-- 人名和官职自动补全。
-- 结果点击后显示原文、解析官职、批注和源单元格。
+- 结果点击后显示原文、批注和源单元格。
 - 深色档案主题在桌面和窄屏下不遮挡、不溢出。
 - CSV 导出可用。
 
@@ -415,10 +351,9 @@ conda run -n document python scripts/import_excel.py 宋代宰辅编年录.xlsx 
 
 - 能从 `宋代宰辅编年录.xlsx` 一键重建 SQLite 数据库。
 - 能按公元年月和人名查询任免与任期记录。
-- 能按官职、皇帝、年号、事件类型和原文关键词进一步筛选。
+- 能按皇帝、年号、事件类型和原文关键词进一步筛选。
 - 每条结果都能追溯到 Excel 源单元格和原始文本。
 - 自动解析不覆盖原文。
-- 无法判断的官职关系标为 `unclear`。
 - 本地运行后能通过浏览器访问查询页面。
 
 ## 非目标
