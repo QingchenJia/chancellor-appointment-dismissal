@@ -17,6 +17,18 @@ def test_search_events_filters_by_person_and_keyword(sample_workbook_path, temp_
     assert result["items"][0]["source_cell"] == "F5"
 
 
+def test_search_events_excludes_tenure_records_by_default(sample_workbook_path, temp_db_path):
+    import_workbook(sample_workbook_path, temp_db_path, rebuild=True)
+
+    default_result = search_events(temp_db_path, person="范质")
+    tenure_result = search_events(temp_db_path, person="范质", event_type="tenure")
+
+    assert default_result["total"] == 1
+    assert default_result["items"][0]["event_type"] == "appointment"
+    assert tenure_result["total"] == 1
+    assert tenure_result["items"][0]["event_type"] == "tenure"
+
+
 def test_event_detail_includes_annotations_and_offices(sample_workbook_path, temp_db_path):
     import_workbook(sample_workbook_path, temp_db_path, rebuild=True)
     event = search_events(temp_db_path, person="赵普")["items"][0]

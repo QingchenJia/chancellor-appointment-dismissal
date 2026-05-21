@@ -299,6 +299,9 @@ def _event_filters(
     if event_type:
         where.append("e.event_type = ?")
         params.append(event_type)
+    else:
+        where.append("e.event_type != ?")
+        params.append("tenure")
     if emperor:
         where.append("t.emperor like ?")
         params.append(f"%{emperor}%")

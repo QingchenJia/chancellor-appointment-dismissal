@@ -1,5 +1,5 @@
 const state = {
-  limit: 50,
+  limit: 30,
   offset: 0,
   total: 0,
   items: [],

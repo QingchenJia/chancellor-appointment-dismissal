@@ -18,6 +18,8 @@
 body {
   margin: 0;
   min-width: 320px;
+  height: 100vh;
+  overflow: hidden;
   background:
     radial-gradient(circle at 12% 0%, rgba(194, 154, 84, 0.1), transparent 34rem),
     linear-gradient(135deg, #151410, #1d1a15 54%, #13120f);
@@ -32,8 +34,9 @@ select {
 }
 
 .app-shell {
-  min-height: 100vh;
+  height: 100vh;
   padding: 22px;
+  overflow: hidden;
 }
 
 .topbar {
@@ -77,6 +80,8 @@ select {
   grid-template-columns: minmax(260px, 320px) minmax(520px, 1fr) minmax(300px, 390px);
   gap: 16px;
   align-items: start;
+  height: calc(100vh - 112px);
+  min-height: 0;
 }
 
 .panel {
@@ -88,16 +93,22 @@ select {
 
 .filters,
 .detail {
-  position: sticky;
-  top: 16px;
-  max-height: calc(100vh - 34px);
-  overflow: auto;
+  height: 100%;
+  overflow: hidden;
 }
 
 .filters,
 .results,
 .detail {
   padding: 16px;
+}
+
+.results {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .panel-title {
@@ -225,6 +236,8 @@ button:disabled {
 }
 
 .table-wrap {
+  flex: 1;
+  min-height: 0;
   overflow: auto;
   border: 1px solid var(--line);
 }
@@ -286,8 +299,8 @@ tbody tr.selected {
 }
 
 .detail-section {
-  margin-top: 16px;
-  padding-top: 14px;
+  margin-top: 13px;
+  padding-top: 12px;
   border-top: 1px solid var(--line);
 }
 
@@ -299,8 +312,12 @@ tbody tr.selected {
 }
 
 .source-text {
+  display: -webkit-box;
   line-height: 1.85;
   color: #fff6e8;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 8;
 }
 
 .empty-state {
@@ -323,14 +340,20 @@ tbody tr.selected {
 
   .detail {
     grid-column: 1 / -1;
-    position: static;
-    max-height: none;
+    height: 320px;
   }
 }
 
 @media (max-width: 820px) {
   .app-shell {
     padding: 12px;
+    height: auto;
+    overflow: auto;
+  }
+
+  body {
+    height: auto;
+    overflow: auto;
   }
 
   .topbar,
@@ -341,10 +364,15 @@ tbody tr.selected {
 
   .workspace {
     grid-template-columns: 1fr;
+    height: auto;
   }
 
   .filters {
-    position: static;
-    max-height: none;
+    height: auto;
+    overflow: visible;
+  }
+
+  .results {
+    height: 70vh;
   }
 }
