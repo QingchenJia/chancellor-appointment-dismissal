@@ -53,9 +53,6 @@ document.querySelectorAll(".quick-filters button").forEach((button) => {
   });
 });
 
-fields.person.addEventListener("input", debounce(() => loadPeople(fields.person.value), 180));
-fields.office.addEventListener("input", debounce(() => loadOffices(fields.office.value), 180));
-
 init();
 
 async function init() {
@@ -75,16 +72,6 @@ async function loadFacets() {
   fillSelect(fields.month, facets.months, "value", "label");
   fillSelect(fields.emperor, facets.emperors.map((value) => ({ value, label: value })), "value", "label");
   fillSelect(fields.era, facets.eras.map((value) => ({ value, label: value })), "value", "label");
-}
-
-async function loadPeople(q) {
-  const people = await fetchJson(`/api/people?q=${encodeURIComponent(q)}`);
-  fillDatalist("peopleList", people.map((person) => person.canonical_name));
-}
-
-async function loadOffices(q) {
-  const offices = await fetchJson(`/api/offices?q=${encodeURIComponent(q)}`);
-  fillDatalist("officeList", offices.map((office) => office.name));
 }
 
 async function loadTimeline() {
@@ -252,16 +239,6 @@ function fillSelect(select, items, valueKey, labelKey) {
   });
 }
 
-function fillDatalist(id, values) {
-  const list = document.querySelector(`#${id}`);
-  list.innerHTML = "";
-  values.forEach((value) => {
-    const option = document.createElement("option");
-    option.value = value;
-    list.appendChild(option);
-  });
-}
-
 function activeFilterText() {
   const active = [];
   Object.entries(fields).forEach(([key, field]) => {
@@ -286,12 +263,4 @@ function escapeHtml(value) {
 
 function csvCell(value) {
   return `"${String(value ?? "").replaceAll('"', '""')}"`;
-}
-
-function debounce(fn, delay) {
-  let timer = null;
-  return (...args) => {
-    window.clearTimeout(timer);
-    timer = window.setTimeout(() => fn(...args), delay);
-  };
 }
