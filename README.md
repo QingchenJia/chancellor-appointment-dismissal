@@ -1,6 +1,6 @@
 # 宋代宰辅任免查询系统
 
-本项目将 `宋代宰辅编年录.xlsx` 中“时间为行、人物为列”的宽表数据导入 SQLite，并提供本地 FastAPI + Web 页面，用于查询两宋宰相与执政官员的任命、罢免、调整和任期状态。
+本项目将 `宋代宰辅编年录.xlsx` 中“时间为行、人物为列”的宽表数据导入 SQLite，并提供本地 FastAPI + Web 页面，用于查询两宋宰相与执政官员的任命、罢免、调整等职务变动记录。
 
 ## 功能
 
@@ -28,7 +28,7 @@ conda run -n document python scripts/import_excel.py 宋代宰辅编年录.xlsx 
 导入完成后会输出行列数、人物数量、记录数量和批注数量。当前原始文件的预期统计约为：
 
 - `person_count: 495`
-- `record_count: 3136`
+- `record_count: 1943`
 - `comment_count: 113`
 
 ## 启动服务
@@ -61,7 +61,7 @@ conda run -n document python -m pytest -q
 
 - `persons`：人物及别名。
 - `time_points`：公元年、月份、皇帝、年号和原始行号。
-- `appointment_events`：任免事件与任期状态，保留原文和源单元格。
+- `appointment_events`：任免、调整、死亡等职务变动事件，保留原文和源单元格；仅表示延续在任的任期状态记录不入库。
 - `offices`：官职候选词。
 - `event_offices`：事件与官职关系。
 - `annotations`：Excel 批注。

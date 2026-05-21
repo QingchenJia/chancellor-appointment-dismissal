@@ -422,7 +422,7 @@ Run:
 conda run -n document python scripts/import_excel.py 宋代宰辅编年录.xlsx --db data/song_chancellors.db --rebuild
 ```
 
-Expected: summary includes approximately `person_count: 495`, `record_count: 3136`, and `comment_count: 113`.
+Expected: summary includes approximately `person_count: 495`, `record_count: 1943`, and `comment_count: 113`.
 
 - [ ] **Step 6: Commit importer**
 
@@ -697,7 +697,7 @@ Run:
 conda run -n document python scripts/import_excel.py 宋代宰辅编年录.xlsx --db data/song_chancellors.db --rebuild
 ```
 
-Expected: import completes and audit counts are close to known workbook inspection: 495 person columns, 3136 records, 113 comments.
+Expected: import completes and audit counts are close to known workbook inspection: 495 person columns, 1943 position-change records, 113 comments.
 
 - [ ] **Step 4: Run API health check**
 

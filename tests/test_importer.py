@@ -9,7 +9,7 @@ def test_import_workbook_normalizes_people_time_events_and_comments(sample_workb
     summary = import_workbook(sample_workbook_path, temp_db_path, rebuild=True)
 
     assert summary["person_count"] == 2
-    assert summary["record_count"] == 3
+    assert summary["record_count"] == 2
     assert summary["comment_count"] == 1
 
     conn = sqlite3.connect(temp_db_path)
@@ -34,8 +34,9 @@ def test_import_workbook_normalizes_people_time_events_and_comments(sample_workb
     assert events[0]["gregorian_year"] == 960
     assert events[0]["month_label"] == "二月"
     assert events[0]["source_cell"] == "E4"
-    assert events[1]["event_type"] == "tenure"
-    assert events[2]["source_cell"] == "F5"
+    assert len(events) == 2
+    assert {event["event_type"] for event in events} == {"appointment"}
+    assert events[1]["source_cell"] == "F5"
     assert comment["source_cell"] == "F5"
 
 
@@ -56,4 +57,4 @@ def test_import_excel_script_runs_from_project_root(sample_workbook_path, temp_d
 
     assert result.returncode == 0, result.stderr
     assert "person_count: 2" in result.stdout
-    assert "record_count: 3" in result.stdout
+    assert "record_count: 2" in result.stdout

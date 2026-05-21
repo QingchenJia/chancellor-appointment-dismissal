@@ -25,8 +25,8 @@ def test_search_events_excludes_tenure_records_by_default(sample_workbook_path, 
 
     assert default_result["total"] == 1
     assert default_result["items"][0]["event_type"] == "appointment"
-    assert tenure_result["total"] == 1
-    assert tenure_result["items"][0]["event_type"] == "tenure"
+    assert tenure_result["total"] == 0
+    assert tenure_result["items"] == []
 
 
 def test_event_detail_includes_annotations_and_offices(sample_workbook_path, temp_db_path):

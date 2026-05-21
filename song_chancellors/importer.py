@@ -85,8 +85,9 @@ def import_workbook(workbook_path: str | Path, db_path: str | Path, rebuild: boo
                 continue
             raw_text = str(cell.value).strip()
             event_type = classify_event_type(raw_text)
+            if event_type == "tenure":
+                continue
             source_cell = cell.coordinate
-            is_tenure = event_type == "tenure"
             cur = conn.execute(
                 """
                 insert into appointment_events (
@@ -96,7 +97,7 @@ def import_workbook(workbook_path: str | Path, db_path: str | Path, rebuild: boo
                 values (?, ?, ?, ?, ?, ?, ?, ?)
                 returning id
                 """,
-                (person_id, time_point_id, event_type, raw_text, source_cell, int(not is_tenure), int(is_tenure), 0.6),
+                (person_id, time_point_id, event_type, raw_text, source_cell, 1, 0, 0.6),
             )
             event_id = int(cur.fetchone()["id"])
             record_count += 1
