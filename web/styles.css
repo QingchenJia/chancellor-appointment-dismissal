@@ -276,7 +276,8 @@ th {
 
 th:nth-child(1),
 td:nth-child(1) {
-  width: 110px;
+  width: 140px;
+  white-space: nowrap;
 }
 
 th:nth-child(2),
