@@ -276,28 +276,27 @@ th {
 
 th:nth-child(1),
 td:nth-child(1) {
-  width: 132px;
-  white-space: nowrap;
+  width: 110px;
 }
 
 th:nth-child(2),
 td:nth-child(2) {
-  width: 112px;
+  width: 130px;
 }
 
 th:nth-child(3),
 td:nth-child(3) {
-  width: 104px;
+  width: 120px;
 }
 
 th:nth-child(4),
 td:nth-child(4) {
-  width: 86px;
+  width: 110px;
 }
 
 th:nth-child(5),
 td:nth-child(5) {
-  width: 94px;
+  width: 116px;
 }
 
 th:nth-child(6),
@@ -328,9 +327,9 @@ tbody tr.selected {
 
 .raw-text {
   color: #e9ddc8;
-  overflow: visible;
-  white-space: normal;
-  line-height: 1.55;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .detail h2 {
