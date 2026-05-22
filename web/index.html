@@ -3,26 +3,22 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>宋代宰辅任免查询</title>
+    <title>宋代宰执拜罢一览</title>
     <link rel="stylesheet" href="/static/styles.css">
   </head>
   <body>
     <div class="app-shell">
       <header class="topbar">
-        <div>
-          <p class="eyebrow">Song Chancellor Archive</p>
-          <h1>宋代宰辅任免查询</h1>
-        </div>
-        <div class="topbar-meta">
-          <span id="healthStatus">数据库检查中</span>
-          <button id="exportCsv" class="ghost-button" type="button">导出 CSV</button>
+        <div class="title-mark">
+          <p class="eyebrow">Survey of Song Chancellor Appointments and Dismissals</p>
+          <h1>宋代宰执拜罢一览</h1>
         </div>
       </header>
 
       <main class="workspace">
         <aside class="filters panel">
           <div class="panel-title">
-            <span>筛选</span>
+            <h2 class="section-title">筛选条件</h2>
             <button id="resetFilters" class="icon-button" type="button" title="重置筛选">↺</button>
           </div>
 
@@ -94,9 +90,8 @@
         <section class="results panel">
           <div class="results-head">
             <div>
-              <p class="eyebrow">查询结果</p>
-              <h2 id="resultCount">0 条记录</h2>
-              <p id="activeFilters" class="muted">尚未设置筛选条件</p>
+              <h2 class="section-title">查询结果</h2>
+              <p id="resultCount" class="result-count">0 条记录</p>
             </div>
             <div class="pager">
               <button id="prevPage" class="ghost-button" type="button">上一页</button>
@@ -126,7 +121,7 @@
 
         <aside class="detail panel">
           <div class="panel-title">
-            <span>详情与证据</span>
+            <h2 class="section-title">详情证据</h2>
             <span id="sourceCell" class="source-pill">未选择</span>
           </div>
           <div id="detailContent" class="empty-state">
