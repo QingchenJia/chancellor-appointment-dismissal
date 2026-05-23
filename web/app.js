@@ -4,6 +4,8 @@ const state = {
     total: 0,
     items: [],
     selectedId: null,
+    monthFrom: "",
+    monthTo: "",
 };
 
 const fields = {
@@ -24,6 +26,10 @@ const typeLabels = {
     tenure: "任期状态",
 };
 
+const customSelects = new Map();
+
+initCustomSelects();
+
 document.querySelector("#searchButton").addEventListener("click", () => {
     state.offset = 0;
     searchEvents();
@@ -37,18 +43,27 @@ document
     .querySelector("#nextPage")
     .addEventListener("click", () => turnPage(1));
 
+[
+    fields.yearFrom,
+    fields.yearTo,
+    fields.month,
+    fields.emperor,
+].forEach((field) => {
+    field.addEventListener("input", clearDynastyQuickFilter);
+    field.addEventListener("change", clearDynastyQuickFilter);
+});
+
 document.querySelectorAll(".quick-filters button").forEach((button) => {
     button.addEventListener("click", () => {
         if (button.dataset.range === "north") {
-            fields.yearFrom.value = "960";
-            fields.yearTo.value = "1127";
+            applyDynastyQuickFilter("north");
         }
         if (button.dataset.range === "south") {
-            fields.yearFrom.value = "1127";
-            fields.yearTo.value = "1279";
+            applyDynastyQuickFilter("south");
         }
         if (button.dataset.type) {
             fields.eventType.value = button.dataset.type;
+            syncCustomSelect(fields.eventType);
         }
         state.offset = 0;
         searchEvents();
@@ -95,10 +110,13 @@ async function loadTimeline() {
 }
 
 async function searchEvents() {
+    syncAllCustomSelects();
     const params = new URLSearchParams();
     appendParam(params, "person", fields.person.value);
     appendParam(params, "year_from", fields.yearFrom.value);
     appendParam(params, "year_to", fields.yearTo.value);
+    appendParam(params, "month_from", state.monthFrom);
+    appendParam(params, "month_to", state.monthTo);
     appendParam(params, "month", fields.month.value);
     appendParam(params, "emperor", fields.emperor.value);
     appendParam(params, "era", fields.era.value);
@@ -182,6 +200,7 @@ function clearFilters() {
     Object.values(fields).forEach((field) => {
         field.value = "";
     });
+    clearDynastyQuickFilter();
     state.offset = 0;
     searchEvents();
 }
@@ -218,6 +237,135 @@ function fillSelect(select, items, valueKey, labelKey) {
         option.textContent = item[labelKey];
         select.appendChild(option);
     });
+    rebuildCustomSelect(select);
+}
+
+function initCustomSelects() {
+    document.querySelectorAll(".archive-select").forEach((select) => {
+        const wrapper = document.createElement("div");
+        wrapper.className = "custom-select";
+
+        const button = document.createElement("button");
+        button.className = "custom-select-button";
+        button.type = "button";
+        button.setAttribute("aria-haspopup", "listbox");
+        button.setAttribute("aria-expanded", "false");
+
+        const options = document.createElement("ul");
+        options.className = "custom-select-options";
+        options.setAttribute("role", "listbox");
+
+        select.parentNode.insertBefore(wrapper, select);
+        wrapper.appendChild(select);
+        wrapper.appendChild(button);
+        wrapper.appendChild(options);
+
+        customSelects.set(select, { wrapper, button, options });
+
+        button.addEventListener("click", () => {
+            const willOpen = !wrapper.classList.contains("is-open");
+            closeCustomSelects(select);
+            wrapper.classList.toggle("is-open", willOpen);
+            button.setAttribute("aria-expanded", String(willOpen));
+        });
+
+        select.addEventListener("change", () => syncCustomSelect(select));
+        rebuildCustomSelect(select);
+    });
+
+    document.addEventListener("click", (event) => {
+        if (!event.target.closest(".custom-select")) {
+            closeCustomSelects();
+        }
+    });
+
+    document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") {
+            closeCustomSelects();
+        }
+    });
+}
+
+function rebuildCustomSelect(select) {
+    const custom = customSelects.get(select);
+    if (!custom) return;
+
+    custom.options.innerHTML = "";
+    Array.from(select.options).forEach((option) => {
+        const item = document.createElement("li");
+        item.className = "custom-select-option";
+        item.dataset.value = option.value;
+        item.setAttribute("role", "option");
+        item.tabIndex = 0;
+        item.textContent = option.textContent;
+        item.addEventListener("click", () => chooseCustomOption(select, option.value));
+        item.addEventListener("keydown", (event) => {
+            if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                chooseCustomOption(select, option.value);
+            }
+        });
+        custom.options.appendChild(item);
+    });
+
+    syncCustomSelect(select);
+}
+
+function chooseCustomOption(select, value) {
+    if (select === fields.emperor) {
+        clearDynastyQuickFilter();
+    }
+    select.value = value;
+    select.dispatchEvent(new Event("change", { bubbles: true }));
+    closeCustomSelects();
+}
+
+function syncCustomSelect(select) {
+    const custom = customSelects.get(select);
+    if (!custom) return;
+
+    const selected = select.selectedOptions[0] || select.options[0];
+    custom.button.textContent = selected ? selected.textContent : "";
+    custom.options.querySelectorAll(".custom-select-option").forEach((item) => {
+        const isSelected = item.dataset.value === select.value;
+        item.classList.toggle("is-selected", isSelected);
+        item.setAttribute("aria-selected", String(isSelected));
+    });
+}
+
+function syncAllCustomSelects() {
+    customSelects.forEach((_, select) => syncCustomSelect(select));
+}
+
+function closeCustomSelects(exceptSelect) {
+    customSelects.forEach((custom, select) => {
+        if (select === exceptSelect) return;
+        custom.wrapper.classList.remove("is-open");
+        custom.button.setAttribute("aria-expanded", "false");
+    });
+}
+
+function applyDynastyQuickFilter(range) {
+    if (range === "north") {
+        fields.yearFrom.value = "";
+        fields.yearTo.value = "1127";
+        state.monthFrom = "";
+        state.monthTo = "4";
+    } else {
+        fields.yearFrom.value = "1127";
+        fields.yearTo.value = "";
+        state.monthFrom = "5";
+        state.monthTo = "";
+    }
+    fields.month.value = "";
+    fields.emperor.value = "";
+    syncCustomSelect(fields.month);
+    syncCustomSelect(fields.emperor);
+}
+
+function clearDynastyQuickFilter() {
+    state.monthFrom = "";
+    state.monthTo = "";
 }
 
 function truncate(value, length) {

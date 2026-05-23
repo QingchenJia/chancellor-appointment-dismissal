@@ -21,7 +21,7 @@ conda run -n document python -m pip install -r requirements.txt
 
 ```powershell
 $env:PYTHONIOENCODING='utf-8'
-conda run -n document python scripts/import_excel.py 宋代宰辅编年录.xlsx --db data/song_chancellors.db --rebuild
+conda run -n document python scripts/import_excel.py 宋代宰辅编年录.xlsx --db song_chancellors.db --rebuild
 ```
 
 导入完成后会输出行列数、人物数量、记录数量和批注数量。当前原始文件的预期统计约为：

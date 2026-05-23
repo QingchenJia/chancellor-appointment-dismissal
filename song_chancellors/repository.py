@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any
+from typing import Any, Sequence
 
 from .db import connect
 
@@ -10,16 +10,29 @@ def search_events(
     db_path: str | Path,
     year_from: int | None = None,
     year_to: int | None = None,
+    month_from: int | None = None,
+    month_to: int | None = None,
     month: int | str | None = None,
     person: str | None = None,
     event_type: str | None = None,
-    emperor: str | None = None,
+    emperor: str | Sequence[str] | None = None,
     era: str | None = None,
     keyword: str | None = None,
     limit: int = 50,
     offset: int = 0,
 ) -> dict[str, Any]:
-    where, params = _event_filters(year_from, year_to, month, person, event_type, emperor, era, keyword)
+    where, params = _event_filters(
+        year_from,
+        year_to,
+        month_from,
+        month_to,
+        month,
+        person,
+        event_type,
+        emperor,
+        era,
+        keyword,
+    )
     where_sql = f"where {' and '.join(where)}" if where else ""
 
     conn = connect(db_path)
@@ -211,19 +224,27 @@ def timeline(db_path: str | Path) -> list[dict[str, Any]]:
 def _event_filters(
     year_from: int | None,
     year_to: int | None,
+    month_from: int | None,
+    month_to: int | None,
     month: int | str | None,
     person: str | None,
     event_type: str | None,
-    emperor: str | None,
+    emperor: str | Sequence[str] | None,
     era: str | None,
     keyword: str | None,
 ) -> tuple[list[str], list[Any]]:
     where: list[str] = []
     params: list[Any] = []
-    if year_from is not None:
+    if year_from is not None and month_from is not None:
+        where.append("(t.gregorian_year > ? or (t.gregorian_year = ? and t.month_index >= ?))")
+        params.extend([year_from, year_from, month_from])
+    elif year_from is not None:
         where.append("t.gregorian_year >= ?")
         params.append(year_from)
-    if year_to is not None:
+    if year_to is not None and month_to is not None:
+        where.append("(t.gregorian_year < ? or (t.gregorian_year = ? and t.month_index <= ?))")
+        params.extend([year_to, year_to, month_to])
+    elif year_to is not None:
         where.append("t.gregorian_year <= ?")
         params.append(year_to)
     if month not in (None, ""):
@@ -239,9 +260,10 @@ def _event_filters(
     else:
         where.append("e.event_type != ?")
         params.append("tenure")
-    if emperor:
-        where.append("t.emperor like ?")
-        params.append(f"%{emperor}%")
+    emperors = _normalize_filter_values(emperor)
+    if emperors:
+        where.append("(" + " or ".join("t.emperor like ?" for _ in emperors) + ")")
+        params.extend(f"%{value}%" for value in emperors)
     if era:
         where.append("t.era_name like ?")
         params.append(f"%{era}%")
@@ -253,3 +275,12 @@ def _event_filters(
 
 def _row_dict(row) -> dict[str, Any]:
     return {key: row[key] for key in row.keys()}
+
+
+def _normalize_filter_values(value: str | Sequence[str] | None) -> list[str]:
+    if value is None:
+        return []
+    if isinstance(value, str):
+        stripped = value.strip()
+        return [stripped] if stripped else []
+    return [str(item).strip() for item in value if str(item).strip()]

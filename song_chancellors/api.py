@@ -2,14 +2,16 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from . import repository
 
+DEFAULT_DB_PATH = Path(__file__).resolve().parents[1] / "song_chancellors.db"
 
-def create_app(db_path: str | Path = "data/song_chancellors.db") -> FastAPI:
+
+def create_app(db_path: str | Path = DEFAULT_DB_PATH) -> FastAPI:
     app = FastAPI(title="Song Chancellor Search")
     database = Path(db_path)
 
@@ -21,10 +23,12 @@ def create_app(db_path: str | Path = "data/song_chancellors.db") -> FastAPI:
     def search_events(
         year_from: int | None = None,
         year_to: int | None = None,
+        month_from: int | None = None,
+        month_to: int | None = None,
         month: int | str | None = None,
         person: str | None = None,
         event_type: str | None = None,
-        emperor: str | None = None,
+        emperor: list[str] | None = Query(default=None),
         era: str | None = None,
         keyword: str | None = None,
         limit: int = 50,
@@ -35,6 +39,8 @@ def create_app(db_path: str | Path = "data/song_chancellors.db") -> FastAPI:
             database,
             year_from=year_from,
             year_to=year_to,
+            month_from=month_from,
+            month_to=month_to,
             month=month,
             person=person,
             event_type=event_type,

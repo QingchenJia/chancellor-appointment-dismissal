@@ -1,3 +1,5 @@
+import openpyxl
+
 from song_chancellors.importer import import_workbook
 from song_chancellors.repository import (
     get_event_detail,
@@ -46,3 +48,39 @@ def test_people_and_facets_support_filter_ui(sample_workbook_path, temp_db_path)
     facets = list_facets(temp_db_path)
     assert "太祖赵匡胤" in facets["emperors"]
     assert "建隆元年" in facets["eras"]
+
+
+def test_search_events_accepts_multiple_emperors_for_dynasty_quick_filters(tmp_path, temp_db_path):
+    workbook_path = tmp_path / "dynasty.xlsx"
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.append([])
+    ws.append(["公元", "皇帝", "年号", "月份", "宰执"])
+    ws.append([960, "太祖赵匡胤", "建隆元年", "正月", "太祖朝除官"])
+    ws.append([1126, "钦宗赵桓", "靖康元年", "正月", "钦宗朝除官"])
+    ws.append([1127, "高宗赵构", "建炎元年", "五月", "高宗朝除官"])
+    wb.save(workbook_path)
+    import_workbook(workbook_path, temp_db_path, rebuild=True)
+
+    result = search_events(temp_db_path, emperor=["太祖赵匡胤", "钦宗赵桓"])
+
+    assert result["total"] == 2
+    assert {item["emperor"] for item in result["items"]} == {"太祖赵匡胤", "钦宗赵桓"}
+
+
+def test_search_events_filters_by_precise_year_month_boundaries(tmp_path, temp_db_path):
+    workbook_path = tmp_path / "boundary.xlsx"
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.append([])
+    ws.append(["公元", "皇帝", "年号", "月份", "宰执"])
+    ws.append([1127, "钦宗赵桓", "靖康二年", "四月", "四月除官"])
+    ws.append([None, "高宗赵构", "建炎元年", "五月", "五月除官"])
+    wb.save(workbook_path)
+    import_workbook(workbook_path, temp_db_path, rebuild=True)
+
+    north = search_events(temp_db_path, year_to=1127, month_to=4)
+    south = search_events(temp_db_path, year_from=1127, month_from=5)
+
+    assert [item["month_label"] for item in north["items"]] == ["四月"]
+    assert [item["month_label"] for item in south["items"]] == ["五月"]

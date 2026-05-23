@@ -1,136 +1,195 @@
 <!doctype html>
 <html lang="zh-CN">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>宋代宰执拜罢一览</title>
-    <link rel="stylesheet" href="/static/styles.css">
-  </head>
-  <body>
-    <div class="app-shell">
-      <header class="topbar">
-        <div class="title-mark">
-          <p class="eyebrow">Survey of Song Chancellor Appointments and Dismissals</p>
-          <h1>宋代宰执拜罢一览</h1>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>宋代宰执拜罢一览</title>
+        <link rel="stylesheet" href="/static/styles.css" />
+    </head>
+    <body>
+        <div class="app-shell">
+            <header class="topbar">
+                <div class="title-mark">
+                    <p class="eyebrow">
+                        Survey of Song Chancellor Appointments and Dismissals
+                    </p>
+                    <h1>宋代宰执拜罢一览</h1>
+                </div>
+            </header>
+
+            <main class="workspace">
+                <aside class="filters panel">
+                    <div class="panel-title">
+                        <h2 class="section-title">筛选条件</h2>
+                        <button
+                            id="resetFilters"
+                            class="icon-button"
+                            type="button"
+                            title="重置筛选"
+                        >
+                            ↺
+                        </button>
+                    </div>
+
+                    <label>
+                        人名
+                        <input
+                            id="person"
+                            autocomplete="off"
+                            placeholder="赵普 / 王安石 / 文天祥"
+                        />
+                    </label>
+
+                    <div class="field-grid">
+                        <label>
+                            起始年
+                            <input
+                                id="yearFrom"
+                                inputmode="numeric"
+                                placeholder="960"
+                            />
+                        </label>
+                        <label>
+                            终止年
+                            <input
+                                id="yearTo"
+                                inputmode="numeric"
+                                placeholder="1279"
+                            />
+                        </label>
+                    </div>
+
+                    <label>
+                        月份
+                        <select id="month" class="archive-select">
+                            <option value="">全部月份</option>
+                        </select>
+                    </label>
+
+                    <label>
+                        皇帝
+                        <select id="emperor" class="archive-select">
+                            <option value="">全部皇帝</option>
+                        </select>
+                    </label>
+
+                    <label>
+                        年号
+                        <select id="era" class="archive-select">
+                            <option value="">全部年号</option>
+                        </select>
+                    </label>
+
+                    <label>
+                        事件类型
+                        <select id="eventType" class="archive-select">
+                            <option value="">全部类型</option>
+                            <option value="appointment">任命/调整</option>
+                            <option value="dismissal">罢免</option>
+                            <option value="death">死亡/殉难</option>
+                        </select>
+                    </label>
+
+                    <label>
+                        原文关键词
+                        <input
+                            id="keyword"
+                            autocomplete="off"
+                            placeholder="乙亥 / 长编 / 同平章事"
+                        />
+                    </label>
+
+                    <div class="button-row">
+                        <button
+                            id="searchButton"
+                            class="primary-button"
+                            type="button"
+                        >
+                            查询
+                        </button>
+                        <button
+                            id="clearButton"
+                            class="secondary-button"
+                            type="button"
+                        >
+                            清空
+                        </button>
+                    </div>
+
+                    <div class="quick-filters">
+                        <button type="button" data-range="north">北宋</button>
+                        <button type="button" data-range="south">南宋</button>
+                        <button type="button" data-type="appointment">
+                            任命
+                        </button>
+                        <button type="button" data-type="dismissal">
+                            罢免
+                        </button>
+                    </div>
+                </aside>
+
+                <section class="results panel">
+                    <div class="results-head">
+                        <div>
+                            <h2 class="section-title">查询结果</h2>
+                            <p id="resultCount" class="result-count">
+                                0 条记录
+                            </p>
+                        </div>
+                        <div class="pager">
+                            <button
+                                id="prevPage"
+                                class="ghost-button"
+                                type="button"
+                            >
+                                上一页
+                            </button>
+                            <span id="pageInfo">第 1 页</span>
+                            <button
+                                id="nextPage"
+                                class="ghost-button"
+                                type="button"
+                            >
+                                下一页
+                            </button>
+                        </div>
+                    </div>
+
+                    <div
+                        id="timeline"
+                        class="timeline"
+                        aria-label="事件时间分布"
+                    ></div>
+
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>公元年月</th>
+                                    <th>皇帝</th>
+                                    <th>年号</th>
+                                    <th>人物</th>
+                                    <th>类型</th>
+                                    <th>原文摘要</th>
+                                </tr>
+                            </thead>
+                            <tbody id="resultsBody"></tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <aside class="detail panel">
+                    <div class="panel-title">
+                        <h2 class="section-title">详情证据</h2>
+                        <span id="sourceCell" class="source-pill">未选择</span>
+                    </div>
+                    <div id="detailContent" class="empty-state">
+                        从中间表格选择一条记录，查看完整原文、批注和源单元格。
+                    </div>
+                </aside>
+            </main>
         </div>
-      </header>
 
-      <main class="workspace">
-        <aside class="filters panel">
-          <div class="panel-title">
-            <h2 class="section-title">筛选条件</h2>
-            <button id="resetFilters" class="icon-button" type="button" title="重置筛选">↺</button>
-          </div>
-
-          <label>
-            人名
-            <input id="person" autocomplete="off" placeholder="赵普 / 秦桧 / 陆秀夫">
-          </label>
-
-          <div class="field-grid">
-            <label>
-              起始年
-              <input id="yearFrom" inputmode="numeric" placeholder="960">
-            </label>
-            <label>
-              终止年
-              <input id="yearTo" inputmode="numeric" placeholder="1279">
-            </label>
-          </div>
-
-          <label>
-            月份
-            <select id="month">
-              <option value="">全部月份</option>
-            </select>
-          </label>
-
-          <label>
-            皇帝
-            <select id="emperor">
-              <option value="">全部皇帝</option>
-            </select>
-          </label>
-
-          <label>
-            年号
-            <select id="era">
-              <option value="">全部年号</option>
-            </select>
-          </label>
-
-          <label>
-            事件类型
-            <select id="eventType">
-              <option value="">全部类型</option>
-              <option value="appointment">任命/调整</option>
-              <option value="dismissal">罢免</option>
-              <option value="death">死亡/殉难</option>
-            </select>
-          </label>
-
-          <label>
-            原文关键词
-            <input id="keyword" autocomplete="off" placeholder="乙亥日 / 长编 / 同平章事">
-          </label>
-
-          <div class="button-row">
-            <button id="searchButton" class="primary-button" type="button">查询</button>
-            <button id="clearButton" class="secondary-button" type="button">清空</button>
-          </div>
-
-          <div class="quick-filters">
-            <button type="button" data-range="north">北宋</button>
-            <button type="button" data-range="south">南宋</button>
-            <button type="button" data-type="appointment">任命</button>
-            <button type="button" data-type="dismissal">罢免</button>
-          </div>
-        </aside>
-
-        <section class="results panel">
-          <div class="results-head">
-            <div>
-              <h2 class="section-title">查询结果</h2>
-              <p id="resultCount" class="result-count">0 条记录</p>
-            </div>
-            <div class="pager">
-              <button id="prevPage" class="ghost-button" type="button">上一页</button>
-              <span id="pageInfo">第 1 页</span>
-              <button id="nextPage" class="ghost-button" type="button">下一页</button>
-            </div>
-          </div>
-
-          <div id="timeline" class="timeline" aria-label="事件时间分布"></div>
-
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>公元年月</th>
-                  <th>皇帝</th>
-                  <th>年号</th>
-                  <th>人物</th>
-                  <th>类型</th>
-                  <th>原文摘要</th>
-                </tr>
-              </thead>
-              <tbody id="resultsBody"></tbody>
-            </table>
-          </div>
-        </section>
-
-        <aside class="detail panel">
-          <div class="panel-title">
-            <h2 class="section-title">详情证据</h2>
-            <span id="sourceCell" class="source-pill">未选择</span>
-          </div>
-          <div id="detailContent" class="empty-state">
-            从中间表格选择一条记录，查看完整原文、批注和源单元格。
-          </div>
-        </aside>
-      </main>
-    </div>
-
-    <script src="/static/app.js"></script>
-  </body>
+        <script src="/static/app.js"></script>
+    </body>
 </html>
