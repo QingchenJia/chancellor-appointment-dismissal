@@ -3,162 +3,225 @@
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="theme-color" content="#f4f1ea" />
         <title>宋代宰执拜罢一览</title>
         <link rel="stylesheet" href="/static/styles.css" />
     </head>
     <body>
         <div class="app-shell">
             <header class="topbar">
-                <div class="title-mark">
-                    <p class="eyebrow">
-                        Survey of Song Chancellor Appointments and Dismissals
-                    </p>
+                <div class="brand-block">
+                    <p class="eyebrow">宋代政治人物资料检索</p>
                     <h1>宋代宰执拜罢一览</h1>
+                </div>
+                <div class="topbar-actions">
+                    <p class="topbar-note">
+                        按人物、年代与事件检索任免记录，并追溯原始文献单元格。
+                    </p>
+                    <button
+                        id="toggleFilters"
+                        class="secondary-button filter-toggle"
+                        type="button"
+                        aria-expanded="true"
+                        aria-controls="filterPanel"
+                    >
+                        收起筛选
+                    </button>
                 </div>
             </header>
 
             <main class="workspace">
-                <aside class="filters panel">
-                    <div class="panel-title">
-                        <h2 class="section-title">筛选条件</h2>
+                <aside
+                    id="filterPanel"
+                    class="filters panel"
+                    aria-labelledby="filterTitle"
+                >
+                    <div class="panel-title filter-heading">
+                        <div>
+                            <p class="section-kicker">检索工具</p>
+                            <h2 id="filterTitle">筛选条件</h2>
+                        </div>
                         <button
                             id="resetFilters"
-                            class="icon-button"
+                            class="text-button"
                             type="button"
-                            title="重置筛选"
                         >
-                            ↺
+                            全部重置
                         </button>
                     </div>
 
-                    <label>
-                        人名
-                        <input
-                            id="person"
-                            autocomplete="off"
-                            placeholder="赵普 / 王安石 / 文天祥"
-                        />
-                    </label>
+                    <div class="filter-scroll">
+                        <section class="filter-section">
+                            <h3>人物与时间</h3>
+                            <label>
+                                人名
+                                <input
+                                    id="person"
+                                    autocomplete="off"
+                                    placeholder="赵普 / 王安石 / 文天祥"
+                                />
+                            </label>
+                            <div class="field-grid">
+                                <label>
+                                    起始年
+                                    <input
+                                        id="yearFrom"
+                                        inputmode="numeric"
+                                        placeholder="960"
+                                    />
+                                </label>
+                                <label>
+                                    终止年
+                                    <input
+                                        id="yearTo"
+                                        inputmode="numeric"
+                                        placeholder="1279"
+                                    />
+                                </label>
+                            </div>
+                            <label>
+                                月份
+                                <select id="month" class="archive-select">
+                                    <option value="">全部月份</option>
+                                </select>
+                            </label>
+                        </section>
 
-                    <div class="field-grid">
-                        <label>
-                            起始年
-                            <input
-                                id="yearFrom"
-                                inputmode="numeric"
-                                placeholder="960"
-                            />
-                        </label>
-                        <label>
-                            终止年
-                            <input
-                                id="yearTo"
-                                inputmode="numeric"
-                                placeholder="1279"
-                            />
-                        </label>
+                        <section class="filter-section">
+                            <h3>朝代信息</h3>
+                            <label>
+                                皇帝
+                                <select id="emperor" class="archive-select">
+                                    <option value="">全部皇帝</option>
+                                </select>
+                            </label>
+                            <label>
+                                年号
+                                <select id="era" class="archive-select">
+                                    <option value="">全部年号</option>
+                                </select>
+                            </label>
+                        </section>
+
+                        <section class="filter-section">
+                            <h3>事件内容</h3>
+                            <label>
+                                事件类型
+                                <select id="eventType" class="archive-select">
+                                    <option value="">全部类型</option>
+                                    <option value="appointment">
+                                        任命/调整
+                                    </option>
+                                    <option value="dismissal">罢免</option>
+                                    <option value="death">死亡/殉难</option>
+                                </select>
+                            </label>
+                            <label>
+                                原文关键词
+                                <input
+                                    id="keyword"
+                                    autocomplete="off"
+                                    placeholder="乙亥 / 长编 / 同平章事"
+                                />
+                            </label>
+                        </section>
+
+                        <div class="quick-filter-block">
+                            <p>快捷筛选</p>
+                            <div class="quick-filters" aria-label="快捷筛选">
+                                <button
+                                    class="quick-filter"
+                                    type="button"
+                                    data-range="north"
+                                    aria-pressed="false"
+                                >
+                                    北宋
+                                </button>
+                                <button
+                                    class="quick-filter"
+                                    type="button"
+                                    data-range="south"
+                                    aria-pressed="false"
+                                >
+                                    南宋
+                                </button>
+                                <button
+                                    class="quick-filter"
+                                    type="button"
+                                    data-type="appointment"
+                                    aria-pressed="false"
+                                >
+                                    任命
+                                </button>
+                                <button
+                                    class="quick-filter"
+                                    type="button"
+                                    data-type="dismissal"
+                                    aria-pressed="false"
+                                >
+                                    罢免
+                                </button>
+                            </div>
+                        </div>
                     </div>
 
-                    <label>
-                        月份
-                        <select id="month" class="archive-select">
-                            <option value="">全部月份</option>
-                        </select>
-                    </label>
-
-                    <label>
-                        皇帝
-                        <select id="emperor" class="archive-select">
-                            <option value="">全部皇帝</option>
-                        </select>
-                    </label>
-
-                    <label>
-                        年号
-                        <select id="era" class="archive-select">
-                            <option value="">全部年号</option>
-                        </select>
-                    </label>
-
-                    <label>
-                        事件类型
-                        <select id="eventType" class="archive-select">
-                            <option value="">全部类型</option>
-                            <option value="appointment">任命/调整</option>
-                            <option value="dismissal">罢免</option>
-                            <option value="death">死亡/殉难</option>
-                        </select>
-                    </label>
-
-                    <label>
-                        原文关键词
-                        <input
-                            id="keyword"
-                            autocomplete="off"
-                            placeholder="乙亥 / 长编 / 同平章事"
-                        />
-                    </label>
-
-                    <div class="button-row">
+                    <div class="filter-actions">
                         <button
                             id="searchButton"
                             class="primary-button"
                             type="button"
                         >
-                            查询
+                            <span class="button-label">查询记录</span>
                         </button>
                         <button
                             id="clearButton"
-                            class="secondary-button"
+                            class="text-button"
                             type="button"
                         >
-                            清空
-                        </button>
-                    </div>
-
-                    <div class="quick-filters">
-                        <button type="button" data-range="north">北宋</button>
-                        <button type="button" data-range="south">南宋</button>
-                        <button type="button" data-type="appointment">
-                            任命
-                        </button>
-                        <button type="button" data-type="dismissal">
-                            罢免
+                            清空条件
                         </button>
                     </div>
                 </aside>
 
-                <section class="results panel">
-                    <div class="results-head">
+                <section
+                    class="results panel"
+                    aria-labelledby="resultsTitle"
+                >
+                    <header class="results-head">
                         <div>
-                            <h2 class="section-title">查询结果</h2>
-                            <p id="resultCount" class="result-count">
-                                0 条记录
-                            </p>
+                            <p class="section-kicker">检索结果</p>
+                            <div class="results-title-line">
+                                <h2 id="resultsTitle">宰执任免记录</h2>
+                                <p id="resultCount">0 条记录</p>
+                            </div>
                         </div>
-                        <div class="pager">
-                            <button
-                                id="prevPage"
-                                class="ghost-button"
-                                type="button"
-                            >
-                                上一页
-                            </button>
-                            <span id="pageInfo">第 1 页</span>
-                            <button
-                                id="nextPage"
-                                class="ghost-button"
-                                type="button"
-                            >
-                                下一页
-                            </button>
-                        </div>
-                    </div>
+                    </header>
 
                     <div
-                        id="timeline"
-                        class="timeline"
-                        aria-label="事件时间分布"
+                        id="filterSummary"
+                        class="filter-summary"
+                        aria-label="当前筛选条件"
+                    ></div>
+
+                    <section
+                        class="timeline-card"
+                        aria-labelledby="timelineTitle"
+                    >
+                        <div class="timeline-copy">
+                            <h3 id="timelineTitle">事件时间分布</h3>
+                            <p>按年月汇总的记录密度</p>
+                        </div>
+                        <div
+                            id="timeline"
+                            class="timeline"
+                            aria-label="事件时间分布图"
+                        ></div>
+                    </section>
+
+                    <div
+                        id="resultsStatus"
+                        class="results-status"
+                        aria-live="polite"
                     ></div>
 
                     <div class="table-wrap">
@@ -176,20 +239,60 @@
                             <tbody id="resultsBody"></tbody>
                         </table>
                     </div>
-                </section>
 
-                <aside class="detail panel">
-                    <div class="panel-title">
-                        <h2 class="section-title">详情证据</h2>
-                        <span id="sourceCell" class="source-pill">未选择</span>
-                    </div>
-                    <div id="detailContent" class="empty-state">
-                        从中间表格选择一条记录，查看完整原文、批注和源单元格。
-                    </div>
-                </aside>
+                    <footer class="results-footer">
+                        <span id="pageInfo">第 1 页 / 共 1 页</span>
+                        <div class="pager">
+                            <button
+                                id="prevPage"
+                                class="secondary-button"
+                                type="button"
+                            >
+                                上一页
+                            </button>
+                            <button
+                                id="nextPage"
+                                class="secondary-button"
+                                type="button"
+                            >
+                                下一页
+                            </button>
+                        </div>
+                    </footer>
+                </section>
             </main>
         </div>
 
-        <script src="/static/app.js"></script>
+        <div id="detailBackdrop" class="drawer-backdrop" hidden></div>
+        <aside
+            id="detailDrawer"
+            class="detail-drawer"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="detailTitle"
+            aria-hidden="true"
+        >
+            <header class="drawer-head">
+                <div>
+                    <p class="section-kicker">原始证据</p>
+                    <h2 id="detailTitle">记录详情</h2>
+                </div>
+                <button
+                    id="closeDetail"
+                    class="icon-button"
+                    type="button"
+                    aria-label="关闭详情"
+                >
+                    ×
+                </button>
+            </header>
+            <div id="detailContent" class="detail-content">
+                <div class="empty-detail">
+                    选择一条记录后，可在这里阅读完整原文、批注与来源信息。
+                </div>
+            </div>
+        </aside>
+
+        <script type="module" src="/static/app.js"></script>
     </body>
 </html>
