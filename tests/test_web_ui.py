@@ -29,3 +29,21 @@ def test_scripts_load_as_modules_after_the_document_markup():
     html = (ROOT / "web" / "index.html").read_text(encoding="utf-8")
 
     assert '<script type="module" src="/static/app.js"></script>' in html
+
+
+def test_styles_define_light_tokens_drawer_and_reduced_motion():
+    css = (ROOT / "web" / "styles.css").read_text(encoding="utf-8")
+
+    for token in ("--canvas:", "--surface:", "--accent:", "--accent-soft:"):
+        assert token in css
+    assert ".detail-drawer.is-open" in css
+    assert "@media (prefers-reduced-motion: reduce)" in css
+    assert "@media (max-width: 1080px)" in css
+
+
+def test_filters_and_detail_have_independent_scrolling():
+    css = (ROOT / "web" / "styles.css").read_text(encoding="utf-8")
+
+    assert ".filter-scroll" in css
+    assert "overflow-y: auto" in css
+    assert ".detail-content" in css
