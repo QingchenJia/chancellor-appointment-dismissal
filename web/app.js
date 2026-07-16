@@ -390,10 +390,9 @@ function openDetail() {
     elements.detailBackdrop.hidden = false;
     elements.detailDrawer.setAttribute("aria-hidden", "false");
     document.body.classList.add("drawer-open");
-    requestAnimationFrame(() => {
-        elements.detailBackdrop.classList.add("is-open");
-        elements.detailDrawer.classList.add("is-open");
-    });
+    void elements.detailDrawer.offsetWidth;
+    elements.detailBackdrop.classList.add("is-open");
+    elements.detailDrawer.classList.add("is-open");
     elements.closeDetail.focus({ preventScroll: true });
 }
 
