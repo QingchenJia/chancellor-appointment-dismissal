@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 
 import {
     buildSearchParams,
+    clearFilterValue,
     createRequestGate,
     getActiveFilters,
     getPageMeta,
@@ -64,4 +65,21 @@ test("request gate rejects responses older than the latest request", () => {
 
     assert.equal(gate.isCurrent(first), false);
     assert.equal(gate.isCurrent(second), true);
+});
+
+test("clearFilterValue resets one field without mutating the original state", () => {
+    const original = {
+        person: "赵普",
+        yearFrom: "960",
+        monthFrom: "1",
+        monthTo: "4",
+    };
+
+    assert.deepEqual(clearFilterValue(original, "person"), {
+        person: "",
+        yearFrom: "960",
+        monthFrom: "1",
+        monthTo: "4",
+    });
+    assert.equal(original.person, "赵普");
 });

@@ -82,3 +82,7 @@ export function createRequestGate() {
         },
     };
 }
+
+export function clearFilterValue(state, key) {
+    return { ...state, [key]: "" };
+}
